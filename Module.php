@@ -156,7 +156,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$this->getFilecacheManager()->put($sUserPublicId, $Zip, 'ready', '.info');
 				$bResult = true;
 			}
-			catch (Exception $oException)
+			catch (\Exception $oException)
 			{
 				$this->getFilecacheManager()->put($sUserPublicId, $Zip, 'error', '.info');
 				$this->Log($oException, true);
