@@ -14,16 +14,16 @@ namespace Aurora\Modules\ImportExportMailPlugin\Enums;
  */
 class ErrorCodes
 {
-	const UnknownError	= 1001;
-	const ErrorSizeLimit	= 1002;
-	const ZipArchiveClassNotFound	= 1003;
+    public const UnknownError	= 1001;
+    public const ErrorSizeLimit	= 1002;
+    public const ZipArchiveClassNotFound	= 1003;
 
-	/**
-	 * @var array
-	 */
-	protected $aConsts = [
-		'UnknownError'	=> self::UnknownError,
-		'ErrorSizeLimit'	=> self::ErrorSizeLimit,
-		'ZipArchiveClassNotFound' => self::ZipArchiveClassNotFound
-	];
+    /**
+     * @var array
+     */
+    protected $aConsts = [
+        'UnknownError'	=> self::UnknownError,
+        'ErrorSizeLimit'	=> self::ErrorSizeLimit,
+        'ZipArchiveClassNotFound' => self::ZipArchiveClassNotFound
+    ];
 }
