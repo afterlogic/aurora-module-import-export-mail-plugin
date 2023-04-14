@@ -7,6 +7,8 @@
 
 namespace Aurora\Modules\ImportExportMailPlugin;
 
+use Aurora\Modules\Mail\Module as MailModule;
+
 /**
  * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
  * @license https://afterlogic.com/products/common-licensing Afterlogic Software License
@@ -21,6 +23,15 @@ class Module extends \Aurora\System\Module\AbstractModule
      */
     public $oFilecacheManager = null;
     public $sLogPrefix = 'plugin-import-export-mail-';
+
+    /**
+     *
+     * @return Module
+     */
+    public static function Decorator()
+    {
+        return parent::Decorator();
+    }
 
     public function init()
     {
@@ -77,7 +88,7 @@ class Module extends \Aurora\System\Module\AbstractModule
      * @param string $Folder Folder name
      * @param string $Zip ZIP file name
      * @return boolean
-     * @throws \Aurora\Modules\ImportExportMailPlugin\Exception
+     * @throws \Exception
      */
     public function ExportMailGenerate($AccountId, $Folder, $Zip)
     {
@@ -91,7 +102,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                 $aTempFiles = [];
 
                 $this->getFilecacheManager()->put($oUser->PublicId, $Zip, 'generate', '.info');
-                $oAccount = \Aurora\System\Api::GetModule('Mail')->GetAccount($AccountId);
+                $oAccount = MailModule::Decorator()->GetAccount($AccountId);
 
                 if ($Folder !== null && $Zip !== null
                     && $oAccount
@@ -267,7 +278,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         \Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
         $bResult = false;
-        $oAccount = \Aurora\System\Api::GetModule('Mail')->GetAccount($AccountId);
+        $oAccount = MailModule::Decorator()->GetAccount($AccountId);
 
         if ($oAccount instanceof \Aurora\Modules\Mail\Models\MailAccount && is_array($UploadData)) {
             $oUser = \Aurora\System\Api::getAuthenticatedUser();
