@@ -14,6 +14,8 @@ use Aurora\Modules\Mail\Module as MailModule;
  * @license https://afterlogic.com/products/common-licensing Afterlogic Software License
  * @copyright Copyright (c) 2023, Afterlogic Corp.
  *
+ * @property Settings $oModuleSettings
+ *
  * @package Modules
  */
 class Module extends \Aurora\System\Module\AbstractModule
@@ -46,7 +48,7 @@ class Module extends \Aurora\System\Module\AbstractModule
     {
         $this->aErrors = [
             Enums\ErrorCodes::UnknownError	=> $this->i18N('UNKNOWN_ERROR'),
-            Enums\ErrorCodes::ErrorSizeLimit	=> $this->i18N('ERROR_SIZE_LIMIT', ['SIZE' => $this->getConfig('UploadSizeLimitMb', 0)])
+            Enums\ErrorCodes::ErrorSizeLimit	=> $this->i18N('ERROR_SIZE_LIMIT', ['SIZE' => $this->oModuleSettings->UploadSizeLimitMb])
         ];
 
         $this->AddEntry('transfer-mail', 'EntryTransferMail');
@@ -63,7 +65,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
         return [
             'AllowZip' => class_exists('ZipArchive'),
-            'UploadSizeLimitMb' => $this->getConfig('UploadSizeLimitMb', 0)
+            'UploadSizeLimitMb' => $this->oModuleSettings->UploadSizeLimitMb
         ];
     }
 
@@ -293,7 +295,7 @@ class Module extends \Aurora\System\Module\AbstractModule
             $oUser = \Aurora\System\Api::getAuthenticatedUser();
             if (is_array($UploadData) && $oUser instanceof \Aurora\Modules\Core\Models\User) {
                 $iSize = (int) $UploadData['size'];
-                $iUploadSizeLimitMb = $this->getConfig('UploadSizeLimitMb', 0);
+                $iUploadSizeLimitMb = $this->oModuleSettings->UploadSizeLimitMb;
                 if ($iUploadSizeLimitMb > 0 && $iSize/(1024*1024) > $iUploadSizeLimitMb) {
                     throw new \Aurora\System\Exceptions\BaseException(Enums\ErrorCodes::ErrorSizeLimit);
                 }
