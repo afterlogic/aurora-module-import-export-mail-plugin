@@ -6,7 +6,7 @@
 		"afterlogic/aurora-framework": "~0.10.0",
 		"afterlogic/aurora-module-mail": "~0.10.0",
 		"afterlogic/aurora-module-webclient-mail": "~0.10.0",
-		"maennchen/zipstream-php": "~0.5.2"
+		"maennchen/zipstream-php": "^2.2.6"
 	},
 	"autoload": {
 		"classmap": ["/"]

@@ -130,7 +130,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 
                     $sZipFilePath = $this->getFilecacheManager()->generateFullFilePath($sUserPublicId, $Zip, '.zip');
                     $rZipResource = fopen($sZipFilePath, 'w+b');
-                    $oZip = new \ZipStream\ZipStream(null, [\ZipStream\ZipStream::OPTION_OUTPUT_STREAM => $rZipResource]);
+
+                    $options = new \ZipStream\Option\Archive();
+                    // $options->setSendHttpHeaders(true);
+                    // $options->setFlushOutput(true);
+                    // $options->setContentDisposition('attachment');
+                    $options->setOutputStream($rZipResource);
+
+                    $oZip = new \ZipStream\ZipStream($Zip, $options);
                     $this->Log('Start fetching mail');
 
                     $self = $this;
@@ -154,7 +161,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                                         if (is_resource($rSubResource)) {
                                             $sFileName = 'uid-' . $iUid . '.eml';
                                             $self->Log('Append file \'' . $sFileName . '\' to ZIP');
-                                            $oZip->addFileFromStream($sFileName, $rSubResource, [], \ZipStream\ZipStream::METHOD_STORE);
+                                            $oZip->addFileFromStream($sFileName, $rSubResource);
                                             $MemoryUsage = memory_get_usage(true)/(1024*1024);
                                             $self->Log('Memory usage: ' . $MemoryUsage);
                                             @fclose($rSubResource);
