@@ -87,7 +87,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $oUser = \Aurora\System\Api::getAuthenticatedUser();
 
         if ($oUser instanceof \Aurora\Modules\Core\Models\User) {
-            $sZipName = \md5(\time().\rand(1000, 9999));
+            $sZipName = \md5(\time() . \rand(1000, 9999));
             $mResult = [
                 'Zip' => $sZipName,
             ];
@@ -152,7 +152,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                             $oApiMail->directMessageToStream(
                                 $oAccount,
                                 function ($rResource, $sContentType, $sFileName, $sMimeIndex = '') use ($sUserPublicId, $self, $iUid, &$oZip, &$aTempFiles) {
-                                    $sTempName = \md5(\time().\rand(1000, 9999).$sFileName);
+                                    $sTempName = \md5(\time() . \rand(1000, 9999) . $sFileName);
                                     $aTempFiles[] = $sTempName;
 
                                     if (is_resource($rResource) && $self->getFilecacheManager()->putFile($sUserPublicId, $sTempName, $rResource)) {
@@ -162,7 +162,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                                             $sFileName = 'uid-' . $iUid . '.eml';
                                             $self->Log('Append file \'' . $sFileName . '\' to ZIP');
                                             $oZip->addFileFromStream($sFileName, $rSubResource);
-                                            $MemoryUsage = memory_get_usage(true)/(1024*1024);
+                                            $MemoryUsage = memory_get_usage(true) / (1024 * 1024);
                                             $self->Log('Memory usage: ' . $MemoryUsage);
                                             @fclose($rSubResource);
                                         }
@@ -264,7 +264,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                 $this->Log('Start write data to buffer');
                 rewind($rZipResource);
                 while (!\feof($rZipResource)) {
-                    $MemoryUsage = memory_get_usage(true)/(1024*1024);
+                    $MemoryUsage = memory_get_usage(true) / (1024 * 1024);
                     $this->Log('Write data to buffer - memory usage:' . $MemoryUsage);
                     $sBuffer = @\fread($rZipResource, 8192);
                     if (false !== $sBuffer) {
@@ -309,7 +309,7 @@ class Module extends \Aurora\System\Module\AbstractModule
             if (is_array($UploadData) && $oUser instanceof \Aurora\Modules\Core\Models\User) {
                 $iSize = (int) $UploadData['size'];
                 $iUploadSizeLimitMb = $this->oModuleSettings->UploadSizeLimitMb;
-                if ($iUploadSizeLimitMb > 0 && $iSize/(1024*1024) > $iUploadSizeLimitMb) {
+                if ($iUploadSizeLimitMb > 0 && $iSize / (1024 * 1024) > $iUploadSizeLimitMb) {
                     throw new \Aurora\System\Exceptions\BaseException(Enums\ErrorCodes::ErrorSizeLimit);
                 }
                 $sUploadName = $UploadData['name'];
