@@ -310,7 +310,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                 $iSize = (int) $UploadData['size'];
                 $iUploadSizeLimitMb = $this->oModuleSettings->UploadSizeLimitMb;
                 if ($iUploadSizeLimitMb > 0 && $iSize / (1024 * 1024) > $iUploadSizeLimitMb) {
-                    throw new \Aurora\System\Exceptions\BaseException(Enums\ErrorCodes::ErrorSizeLimit);
+                    throw new \Aurora\System\Exceptions\ApiException(Enums\ErrorCodes::ErrorSizeLimit);
                 }
                 $sUploadName = $UploadData['name'];
                 $bIsZipExtension  = strtolower(pathinfo($sUploadName, PATHINFO_EXTENSION)) === 'zip';
@@ -342,10 +342,10 @@ class Module extends \Aurora\System\Module\AbstractModule
                                 $bResult = true;
                             }
                         } else {
-                            throw new \Aurora\System\Exceptions\BaseException(Enums\ErrorCodes::ZipArchiveClassNotFound);
+                            throw new \Aurora\System\Exceptions\ApiException(Enums\ErrorCodes::ZipArchiveClassNotFound);
                         }
                     } else {
-                        throw new \Aurora\System\Exceptions\BaseException(Enums\ErrorCodes::UnknownError);
+                        throw new \Aurora\System\Exceptions\ApiException(Enums\ErrorCodes::UnknownError);
                     }
                 }
             }
