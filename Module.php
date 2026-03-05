@@ -8,6 +8,7 @@
 namespace Aurora\Modules\ImportExportMailPlugin;
 
 use Aurora\Modules\Mail\Module as MailModule;
+use Aurora\System\Facades\Route;
 
 /**
  * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
@@ -57,7 +58,12 @@ class Module extends \Aurora\System\Module\AbstractModule
             Enums\ErrorCodes::ErrorSizeLimit	=> $this->i18N('ERROR_SIZE_LIMIT', ['SIZE' => $this->oModuleSettings->UploadSizeLimitMb])
         ];
 
-        $this->AddEntry('transfer-mail', 'EntryTransferMail');
+        Route::add(
+            $this,
+            [
+                'transfer-mail' => 'EntryTransferMail',
+            ]
+        );
     }
 
     /**
