@@ -85,12 +85,16 @@ class Module extends \Aurora\System\Module\AbstractModule
         $oUser = \Aurora\System\Api::getAuthenticatedUser();
 
         if ($oUser instanceof \Aurora\Modules\Core\Models\User) {
+            // Export archives can be huge, so keep their own cache folder on a much shorter
+            // leash than the shared 6-hour cache TTL instead of waiting for the global GC.
+            $this->getFilecacheManager()->gc(self::GetName(), 60 * 60);
+
             $sZipName = \md5(\time() . \rand(1000, 9999));
             $mResult = [
                 'Zip' => $sZipName,
             ];
-            $this->getFilecacheManager()->put($oUser->PublicId, $sZipName, '', '.zip');
-            $this->getFilecacheManager()->put($oUser->PublicId, $sZipName, 'prepare', '.info');
+            $this->getFilecacheManager()->put($oUser->PublicId, $sZipName, '', '.zip', self::GetName());
+            $this->getFilecacheManager()->put($oUser->PublicId, $sZipName, 'prepare', '.info', self::GetName());
         }
 
         return $mResult;
@@ -116,7 +120,7 @@ class Module extends \Aurora\System\Module\AbstractModule
             try {
                 $aTempFiles = [];
 
-                $this->getFilecacheManager()->put($oUser->PublicId, $Zip, 'generate', '.info');
+                $this->getFilecacheManager()->put($oUser->PublicId, $Zip, 'generate', '.info', self::GetName());
                 $oAccount = MailModule::Decorator()->GetAccount($AccountId);
 
                 if ($Folder !== null && $Zip !== null
@@ -126,7 +130,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                     $iOffset = 0;
                     $iLimit = 20;
 
-                    $sZipFilePath = $this->getFilecacheManager()->generateFullFilePath($sUserPublicId, $Zip, '.zip');
+                    $sZipFilePath = $this->getFilecacheManager()->generateFullFilePath($sUserPublicId, $Zip, '.zip', self::GetName());
                     $rZipResource = fopen($sZipFilePath, 'w+b');
 
                     $options = new \ZipStream\Option\Archive();
@@ -181,10 +185,10 @@ class Module extends \Aurora\System\Module\AbstractModule
                     }
                 }
                 $this->Log('Generating ZIP Result: ');
-                $this->getFilecacheManager()->put($sUserPublicId, $Zip, 'ready', '.info');
+                $this->getFilecacheManager()->put($sUserPublicId, $Zip, 'ready', '.info', self::GetName());
                 $bResult = true;
             } catch (\Exception $oException) {
-                $this->getFilecacheManager()->put($sUserPublicId, $Zip, 'error', '.info');
+                $this->getFilecacheManager()->put($sUserPublicId, $Zip, 'error', '.info', self::GetName());
                 $this->Log($oException, true);
                 throw $oException;
             }
@@ -206,9 +210,9 @@ class Module extends \Aurora\System\Module\AbstractModule
         $oUser = \Aurora\System\Api::getAuthenticatedUser();
 
         if ($oUser instanceof \Aurora\Modules\Core\Models\User) {
-            if ($this->getFilecacheManager()->isFileExists($oUser->PublicId, $Zip, '.info')) {
+            if ($this->getFilecacheManager()->isFileExists($oUser->PublicId, $Zip, '.info', self::GetName())) {
                 $mResult = [
-                    'Status' => $this->getFilecacheManager()->get($oUser->PublicId, $Zip, '.info')
+                    'Status' => $this->getFilecacheManager()->get($oUser->PublicId, $Zip, '.info', self::GetName())
                 ];
             }
         }
@@ -242,10 +246,10 @@ class Module extends \Aurora\System\Module\AbstractModule
         @ob_start();
         ini_set('display_errors', 0);
         if ($oUser instanceof \Aurora\Modules\Core\Models\User) {
-            $this->getFilecacheManager()->put($oUser->PublicId, $sFileName, 'download', '.info');
+            $this->getFilecacheManager()->put($oUser->PublicId, $sFileName, 'download', '.info', self::GetName());
             $this->Log('Start downloading ZIP file.. ');
 
-            $sZipFilePath = $this->getFilecacheManager()->generateFullFilePath($oUser->PublicId, $sFileName, '.zip');
+            $sZipFilePath = $this->getFilecacheManager()->generateFullFilePath($oUser->PublicId, $sFileName, '.zip', self::GetName());
             $iFileSize = filesize($sZipFilePath);
             $this->Log('ZIP file size: ' . $iFileSize);
 
@@ -276,6 +280,10 @@ class Module extends \Aurora\System\Module\AbstractModule
                 }
                 @\fclose($rZipResource);
                 $this->Log('End write data to buffer');
+
+                $this->getFilecacheManager()->clear($oUser->PublicId, $sFileName, '.zip', self::GetName());
+                $this->getFilecacheManager()->clear($oUser->PublicId, $sFileName, '.info', self::GetName());
+                $this->Log('Removed exported ZIP file after download');
             } else {
                 $this->Log("Error. File {$sZipFilePath} not found.");
             }
